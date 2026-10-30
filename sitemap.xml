@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- TODO: replace https://www.example.com with the confirmed production domain -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://www.example.com/</loc></url>
+  <url><loc>https://www.example.com/about.html</loc></url>
+  <url><loc>https://www.example.com/real-estate.html</loc></url>
+  <url><loc>https://www.example.com/construction.html</loc></url>
+  <url><loc>https://www.example.com/ongoing-projects.html</loc></url>
+  <url><loc>https://www.example.com/completed-projects.html</loc></url>
+  <url><loc>https://www.example.com/contact.html</loc></url>
+</urlset>
