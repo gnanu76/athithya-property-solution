@@ -32,10 +32,10 @@
     });
     // Hover support on desktop (CSS handles visibility; keep aria in sync)
     li.addEventListener('mouseenter', function () {
-      if (window.matchMedia('(min-width: 961px)').matches) btn.setAttribute('aria-expanded', 'true');
+      if (window.matchMedia('(min-width: 1025px)').matches) btn.setAttribute('aria-expanded', 'true');
     });
     li.addEventListener('mouseleave', function () {
-      if (window.matchMedia('(min-width: 961px)').matches && !li.classList.contains('open')) btn.setAttribute('aria-expanded', 'false');
+      if (window.matchMedia('(min-width: 1025px)').matches && !li.classList.contains('open')) btn.setAttribute('aria-expanded', 'false');
     });
   });
   document.addEventListener('click', function (e) {
@@ -74,16 +74,19 @@
     });
   });
 
-  /* ---------- Enquiry form (contact.html) ---------- */
+  /* ---------- Enquiry form (contact.html) — frontend only, via Web3Forms ---------- */
   var form = document.getElementById('enquiry-form');
   if (!form) return;
 
-  var endpoint = form.getAttribute('data-endpoint') || '/api/enquiry';
+  // Set on the <form> tag in contact.html:
+  //   data-endpoint="https://api.web3forms.com/submit"
+  //   data-access-key="YOUR_WEB3FORMS_ACCESS_KEY"
+  var endpoint = form.getAttribute('data-endpoint') || 'https://api.web3forms.com/submit';
   var statusBox = document.getElementById('form-status');
   var submitBtn = form.querySelector('button[type="submit"]');
   var submitting = false;
 
-  // Pre-select enquiry type from ?type=... links on other pages
+  // Pre-select enquiry type from links like contact.html?type=Construction
   var params = new URLSearchParams(window.location.search);
   var preType = params.get('type');
   var typeSelect = form.elements['enquiryType'];
@@ -143,6 +146,12 @@
     statusBox.textContent = '';
     if (!validate()) return;
 
+    var accessKey = form.getAttribute('data-access-key');
+    if (!accessKey || accessKey.indexOf('YOUR_') === 0) {
+      showStatus('error', 'The enquiry form is not configured yet (missing Web3Forms access key). Please contact us on WhatsApp at 9841455995.');
+      return;
+    }
+
     submitting = true;
     submitBtn.disabled = true;
     submitBtn.classList.add('loading');
@@ -151,13 +160,16 @@
 
     var f = form.elements;
     var payload = {
-      fullName: f.fullName.value.trim(),
+      access_key: accessKey,
+      subject: 'Website enquiry: ' + f.enquiryType.value + ' — ' + f.fullName.value.trim(),
+      from_name: 'Athithya Property Solutions Website',
+      name: f.fullName.value.trim(),
       phone: f.phone.value.trim(),
-      email: f.email.value.trim(),
-      enquiryType: f.enquiryType.value,
-      message: f.message.value.trim(),
-      website: f.website.value // honeypot — must stay empty
+      enquiry_type: f.enquiryType.value,
+      message: f.message.value.trim()
     };
+    if (f.email.value.trim()) { payload.email = f.email.value.trim(); }
+    if (f.botcheck && f.botcheck.value) { payload.botcheck = f.botcheck.value; } // honeypot — must stay empty
 
     fetch(endpoint, {
       method: 'POST',
@@ -168,16 +180,16 @@
         return res.json().catch(function () { return {}; }).then(function (data) { return { res: res, data: data }; });
       })
       .then(function (r) {
+        // Success is shown only when Web3Forms confirms it
         if (r.res.ok && r.data && r.data.success === true) {
           showStatus('success', 'Thank you. Your enquiry has been sent to Athithya Property Solutions. Our team will contact you.');
           form.reset();
         } else {
-          var msg = (r.data && r.data.message) || 'We could not send your enquiry. Please try again, or contact us on WhatsApp at 9841455995.';
-          showStatus('error', msg);
+          showStatus('error', 'We could not send your enquiry' + (r.data && r.data.message ? ' (' + r.data.message + ')' : '') + '. Please try again, or contact us on WhatsApp at 9841455995.');
         }
       })
       .catch(function () {
-        showStatus('error', 'We could not reach the server, so your enquiry was NOT sent. Please try again, or contact us directly on WhatsApp at 9841455995 or by email at athithyapropertyconsultant@gmail.com.');
+        showStatus('error', 'We could not reach the form service, so your enquiry was NOT sent. Please try again, or contact us directly on WhatsApp at 9841455995 or by email at athithyapropertyconsultant@gmail.com.');
       })
       .then(function () {
         submitting = false;
