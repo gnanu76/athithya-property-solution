@@ -410,3 +410,29 @@ section{position:relative}
   .why-list li{padding-left:58px}
   .btn{white-space:normal}
 }
+
+/* Brand location below the tagline */
+.brand .brand-location {
+  display: block;
+  color: #FFE7A0;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+  white-space: normal;
+  margin-top: 5px;
+}
+/* Top contact details aligned to the right */
+.top-strip .container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  text-align: right;
+  min-height: 42px;
+}
+
+.top-strip .container > span {
+  margin-left: auto;
+  text-align: right;
+}
